@@ -25,6 +25,7 @@ service IoTService {
 // The request message containing the user's name.
 message TemperatureRequest {
   string sensorName = 1;
+  string token = 2;
 }
 
 message UserRequest {
