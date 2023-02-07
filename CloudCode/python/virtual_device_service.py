@@ -61,6 +61,8 @@ class IoTServer(iot_service_pb2_grpc.IoTServiceServicer):
             print ("Blink led ", request.ledname)
             print ("...with state ", request.state)
             produce_led_command(request.state, request.ledname)
+            led_id = 3 if request.ledname == 'red' else 4
+            create_db.insert_user_device_value(1, led_id, request.state)
             # Update led state of twin
             led_state[request.ledname] = request.state
             return iot_service_pb2.LedReply(ledstate=led_state)
@@ -68,6 +70,7 @@ class IoTServer(iot_service_pb2_grpc.IoTServiceServicer):
 
     def SayLightLevel(self, request, context):
         if self.is_authenticated(request.token):
+            create_db.insert_user_device_value(1,2, current_light_level)
             return iot_service_pb2.LightLevelReply(lightLevel=current_light_level)
         return iot_service_pb2.LightLevelReply(lightLevel="")
 
@@ -80,7 +83,6 @@ class IoTServer(iot_service_pb2_grpc.IoTServiceServicer):
             return iot_service_pb2.UserResponse(status=False, token="")
     
     def is_authenticated(self, token):
-        print ("protected ", token)
         try:
             jwt.decode(token, 'scret', algorithms=['HS256'])
             return True

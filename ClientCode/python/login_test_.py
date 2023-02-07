@@ -8,8 +8,13 @@ if __name__ == '__main__':
     password = input("Enter password: ")
     stub = iot_service_pb2_grpc.IoTServiceStub(channel)
     response = stub.Login(iot_service_pb2.UserRequest(name=username, password=password))
+    token = response.token
     print("Login status: " + str(response.status))
-    print("Token: " + response.token)
+    print("Token: " + token)
     # retrieve temperature
-    response = stub.SayTemperature(iot_service_pb2.TemperatureRequest(sensorName='my_sensor', token=response.token))
+    response = stub.SayTemperature(iot_service_pb2.TemperatureRequest(sensorName='my_sensor', token=token))
     print("Temperature: " + response.temperature)
+    response = stub.SayLightLevel(iot_service_pb2.LightLevelRequest(sensorName='my_sensor', token=token))
+    print("Light" + response.lightLevel)
+    response = stub.BlinkLed(iot_service_pb2.LedRequest(state=1, ledname='red', token=token))
+    print("Led" + response)
