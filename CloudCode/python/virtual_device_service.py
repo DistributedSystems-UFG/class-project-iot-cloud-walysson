@@ -33,7 +33,7 @@ def consume_light_level():
     consumer.subscribe(topics=('lightlevel'))
     for msg in consumer:
         print ('Received Light Level: ', msg.value.decode())
-        if float(msg.value.decode()) >= 20:
+        if float(msg.value.decode()) >= 80:
             produce_led_command(1, 'red')
         else:
             produce_led_command(0, 'red')
