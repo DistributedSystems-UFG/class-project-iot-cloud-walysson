@@ -1,0 +1,72 @@
+{% include 'usermanagement/base.html' %}
+
+{% block content %}
+<div class="container mt-3">
+  <h1 class="mb-4">Real-Time Temperature Chart</h1>
+  <canvas id="temperatureChart" width="400" height="150"></canvas>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+
+<script>
+
+  // Set up the chart and data
+  const ctx = document.getElementById('temperatureChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Temperature (°C)',
+        data: [],
+        borderColor: 'rgb(255, 99, 132)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Time'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Temperature (°C)'
+          }
+        }
+      }
+    }
+  });
+
+  // Define function to update chart data
+  function updateChart(time, temperature) {
+    chart.data.labels.push(time);
+    chart.data.datasets[0].data.push(temperature);
+    chart.update();
+  }
+
+  async function getTemperature(){
+    const response = await axios.get('http://localhost:8000/temperature', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': localStorage.getItem('token')
+      },
+    });
+    console.log(response.data);
+    const currentTime = new Date().toLocaleTimeString();
+    updateChart(currentTime, response.data.temperature);
+  }
+
+  // Define function to get temperature data from the gRPC server
+
+  // Call getTemperature() function every 2 second
+  setInterval(getTemperature, 2000);
+</script>
+{% endblock %}
